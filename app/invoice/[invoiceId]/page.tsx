@@ -23,8 +23,13 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
       try {
         const fetchedInvoice = await getInvoiceById(params.invoiceId);
         if (fetchedInvoice) {
-          setInvoice(fetchedInvoice);
-          setInitialInvoice(fetchedInvoice);
+          // Assurer que lines existe toujours
+          const safeInvoice = {
+            ...fetchedInvoice,
+            lines: fetchedInvoice.lines || [],
+          };
+          setInvoice(safeInvoice);
+          setInitialInvoice(safeInvoice);
         }
       } catch (error) {
         console.error(error);
@@ -35,10 +40,19 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
 
   useEffect(() => {
     if (!invoice) return;
-    const ht = invoice.lines || []).reduce(
-      (acc, { quantity, unitPrice }) => acc + quantity * unitPrice,
+    
+    // Guard: s'assurer que lines est un tableau
+    const lines = invoice.lines || [];
+    
+    const ht = lines.reduce(
+      (acc, line) => {
+        const qty = line?.quantity || 0;
+        const price = line?.unitPrice || 0;
+        return acc + qty * price;
+      },
       0,
     );
+    
     const vat = invoice.vatActive ? ht * (invoice.vatRate / 100) : 0;
     setTotals({ totalHT: ht, totalVAT: vat, totalTTC: ht + vat });
   }, [invoice]);
@@ -58,14 +72,18 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
   }, [invoice, initialInvoice]);
 
   const handleSave = async () => {
-    if (!invoice || !invoice.id) return;
+    if (!invoice?.id) return;
     setIsLoading(true);
     try {
       await updateInvoice(invoice);
       const updatedInvoice = await getInvoiceById(invoice.id);
       if (updatedInvoice) {
-        setInvoice(updatedInvoice);
-        setInitialInvoice(updatedInvoice);
+        const safeInvoice = {
+          ...updatedInvoice,
+          lines: updatedInvoice.lines || [],
+        };
+        setInvoice(safeInvoice);
+        setInitialInvoice(safeInvoice);
       }
     } catch (error) {
       console.error("Erreur lors de la sauvegarde de la facture :", error);
@@ -93,7 +111,7 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
 
   if (!invoice || !totals)
     return (
-      <div className="flex justify-center items-center h-screen w-full ">
+      <div className="flex justify-center items-center h-screen w-full">
         <span className="font-bold">Facture Non Trouvée</span>
       </div>
     );
