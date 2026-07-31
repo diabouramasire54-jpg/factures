@@ -23,7 +23,6 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
       try {
         const fetchedInvoice = await getInvoiceById(params.invoiceId);
         if (fetchedInvoice) {
-          // Assurer que lines existe toujours
           const safeInvoice = {
             ...fetchedInvoice,
             lines: fetchedInvoice.lines || [],
@@ -40,10 +39,7 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
 
   useEffect(() => {
     if (!invoice) return;
-    
-    // Guard: s'assurer que lines est un tableau
     const lines = invoice.lines || [];
-    
     const ht = lines.reduce(
       (acc, line) => {
         const qty = line?.quantity || 0;
@@ -52,7 +48,6 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
       },
       0,
     );
-    
     const vat = invoice.vatActive ? ht * (invoice.vatRate / 100) : 0;
     setTotals({ totalHT: ht, totalVAT: vat, totalTTC: ht + vat });
   }, [invoice]);
@@ -72,31 +67,32 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
   }, [invoice, initialInvoice]);
 
   const handleSave = async () => {
-  if (!invoice?.id) return;
-  setIsLoading(true);
-  try {
-    await updateInvoice(invoice);
-    const updatedInvoice = await getInvoiceById(invoice.id);
-    if (updatedInvoice) {
-      const safeInvoice = {
-        ...updatedInvoice,
-        lines: updatedInvoice.lines || [],
-      };
-      setInvoice(safeInvoice);
-      setInitialInvoice(safeInvoice);
+    if (!invoice?.id) return;
+    setIsLoading(true);
+    try {
+      await updateInvoice(invoice);
+      const updatedInvoice = await getInvoiceById(invoice.id);
+      if (updatedInvoice) {
+        const safeInvoice = {
+          ...updatedInvoice,
+          lines: updatedInvoice.lines || [],
+        };
+        setInvoice(safeInvoice);
+        setInitialInvoice(safeInvoice);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde de la facture :", error);
+      alert("Erreur sauvegarde: " + (error instanceof Error ? error.message : "Problème inconnu"));
+    } finally {
+      setIsLoading(false);
     }
-  } catch (error) {
-    console.error("Erreur:", error);
-    alert("Erreur sauvegarde: " + (error instanceof Error ? error.message : "Problème inconnu"));
-};
+  };
 
   const handleDelete = async () => {
     if (!invoice?.id) return;
-    
     const confirmed = window.confirm(
       "Êtes-vous sûr de vouloir supprimer cette facture ?",
     );
-
     if (confirmed) {
       try {
         await deleteInvoice(invoice.id);
