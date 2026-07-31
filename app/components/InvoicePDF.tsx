@@ -103,8 +103,8 @@ const InvoicePDF: React.FC<FacturePDFProps> = ({ invoice, totals }) => {
     }
 
     return (
-        <div className='mt-4 hidden lg:block'>
-            <div className='border-base-300 border-2 border-dashed rounded-xl p-5'>
+        <div className='mt-4'>
+            <div className='border-base-300 border-2 border-dashed rounded-xl p-5 overflow-x-auto'>
                 <button
                     onClick={handleDownloadPdf}
                     className='btn btn-sm btn-accent mb-4'
