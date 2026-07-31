@@ -72,25 +72,26 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
   }, [invoice, initialInvoice]);
 
   const handleSave = async () => {
-    if (!invoice?.id) return;
-    setIsLoading(true);
-    try {
-      await updateInvoice(invoice);
-      const updatedInvoice = await getInvoiceById(invoice.id);
-      if (updatedInvoice) {
-        const safeInvoice = {
-          ...updatedInvoice,
-          lines: updatedInvoice.lines || [],
-        };
-        setInvoice(safeInvoice);
-        setInitialInvoice(safeInvoice);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde de la facture :", error);
-    } finally {
-      setIsLoading(false);
+  if (!invoice?.id) return;
+  setIsLoading(true);
+  try {
+    await updateInvoice(invoice);
+    const updatedInvoice = await getInvoiceById(invoice.id);
+    if (updatedInvoice) {
+      const safeInvoice = {
+        ...updatedInvoice,
+        lines: updatedInvoice.lines || [],
+      };
+      setInvoice(safeInvoice);
+      setInitialInvoice(safeInvoice);
     }
-  };
+  } catch (error: any) {
+    console.error("Erreur:", error);
+    alert("Erreur sauvegarde: " + (error?.message || JSON.stringify(error)));
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleDelete = async () => {
     if (!invoice?.id) return;
