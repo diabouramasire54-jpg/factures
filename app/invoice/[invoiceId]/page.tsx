@@ -35,7 +35,7 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
 
   useEffect(() => {
     if (!invoice) return;
-    const ht = invoice.lines.reduce(
+    const ht = invoice.lines || []).reduce(
       (acc, { quantity, unitPrice }) => acc + quantity * unitPrice,
       0,
     );
@@ -58,7 +58,7 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
   }, [invoice, initialInvoice]);
 
   const handleSave = async () => {
-    if (!invoice) return;
+    if (!invoice || !invoice.id) return;
     setIsLoading(true);
     try {
       await updateInvoice(invoice);
