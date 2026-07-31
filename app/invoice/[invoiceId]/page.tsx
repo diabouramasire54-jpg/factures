@@ -1,4 +1,10 @@
 "use client";
+if (typeof window !== "undefined") {
+  window.onerror = function (message) {
+    alert("Erreur : " + message);
+    return false;
+  };
+}
 import { deleteInvoice, getInvoiceById, updateInvoice } from "@/app/actions";
 import InvoiceInfo from "@/app/components/InvoiceInfo";
 import InvoiceLines from "@/app/components/InvoiceLines";
@@ -40,14 +46,11 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
   useEffect(() => {
     if (!invoice) return;
     const lines = invoice.lines || [];
-    const ht = lines.reduce(
-      (acc, line) => {
-        const qty = line?.quantity || 0;
-        const price = line?.unitPrice || 0;
-        return acc + qty * price;
-      },
-      0,
-    );
+    const ht = lines.reduce((acc, line) => {
+      const qty = line?.quantity || 0;
+      const price = line?.unitPrice || 0;
+      return acc + qty * price;
+    }, 0);
     const vat = invoice.vatActive ? ht * (invoice.vatRate / 100) : 0;
     setTotals({ totalHT: ht, totalVAT: vat, totalTTC: ht + vat });
   }, [invoice]);
@@ -70,8 +73,7 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
     if (!invoice?.id) return;
     setIsLoading(true);
     try {
-      await updateInvoice(invoice);
-      const updatedInvoice = await getInvoiceById(invoice.id);
+      const updatedInvoice = await updateInvoice(invoice);
       if (updatedInvoice) {
         const safeInvoice = {
           ...updatedInvoice,
@@ -79,10 +81,14 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
         };
         setInvoice(safeInvoice);
         setInitialInvoice(safeInvoice);
+        router.refresh();
       }
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde de la facture :", error);
-      alert("Erreur sauvegarde: " + (error instanceof Error ? error.message : "Problème inconnu"));
+      console.error("Erreur:", error);
+      alert(
+        "Erreur sauvegarde: " +
+          (error instanceof Error ? error.message : "Problème inconnu"),
+      );
     } finally {
       setIsLoading(false);
     }

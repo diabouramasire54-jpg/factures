@@ -36,6 +36,14 @@ export default function Home() {
     setIsNameValide(invoiceName.length <= 60);
   }, [invoiceName]);
 
+  useEffect(() => {
+    const handleFocus = () => {
+      if (email) fetchInvoices();
+    };
+    window.addEventListener("focus", handleFocus);
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [email, fetchInvoices]);
+
   const handleCreateInvoice = async () => {
     if (!email) return;
     try {
@@ -88,10 +96,7 @@ export default function Home() {
           </div>
 
           {invoices.map((invoice) => (
-            <InvoiceComponent
-              key={invoice.id}
-              invoice={invoice}
-            />
+            <InvoiceComponent key={invoice.id} invoice={invoice} />
           ))}
         </div>
 
