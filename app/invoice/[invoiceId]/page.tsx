@@ -85,12 +85,9 @@ const InvoicePage = ({ params }: { params: { invoiceId: string } }) => {
       setInvoice(safeInvoice);
       setInitialInvoice(safeInvoice);
     }
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erreur:", error);
-    alert("Erreur sauvegarde: " + (error?.message || JSON.stringify(error)));
-  } finally {
-    setIsLoading(false);
-  }
+    alert("Erreur sauvegarde: " + (error instanceof Error ? error.message : "Problème inconnu"));
 };
 
   const handleDelete = async () => {
