@@ -5,7 +5,6 @@ import React from 'react'
 
 type InvoiceComponentProps = {
     invoice: Invoice;
-    index: number
 }
 
 const getStatusBadge = (status: number) => {
