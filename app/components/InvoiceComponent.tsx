@@ -57,7 +57,7 @@ const getStatusBadge = (status: number) => {
 }
 
 
-const InvoiceComponent: React.FC<InvoiceComponentProps> = ({ invoice, index }) => {
+const InvoiceComponent: React.FC<InvoiceComponentProps> = ({ invoice }) => {
 
 
     const calculateTotal = () => {

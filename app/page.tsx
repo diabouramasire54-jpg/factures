@@ -87,11 +87,10 @@ export default function Home() {
             </div>
           </div>
 
-          {invoices.map((invoice, index) => (
+          {invoices.map((invoice) => (
             <InvoiceComponent
               key={invoice.id}
               invoice={invoice}
-              index={index}
             />
           ))}
         </div>
